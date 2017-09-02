@@ -27,12 +27,19 @@
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
-        <form id="chatbox">
-          <input type="text" name="chat_message"><br>
-          <input type="submit" value="Submit">
-        </form>
+      <div class="dropdown">
+        <button onclick="app.dropdown()" class="dropbtn">Lobby</button>
+        <div id="myDropdown" class="dropdown-content">
+          
+          <ul><a href="#">Lobby</a></ul>
+        </div>
+      </div> 
+      <form id="chatbox">
+        <input type="text" id="chat_input" name="chatmessage"><br>
+        <input type="submit" value="Submit">
+      </form>
     </div>
-    <div id="chats"></div>
     <div id="roomSelect"></div>
+    <div id="chats"></div>
   </body>
 </html>
