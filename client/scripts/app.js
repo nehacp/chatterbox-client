@@ -1,4 +1,3 @@
-// YOUR CODE HERE:
 
 
 var app = {};
@@ -6,6 +5,14 @@ var app = {};
 app.server = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
 
 app.init = function() {
+  // $(document).ready(function() {
+  //   $('#chatbox').submit((event) => {
+  //     event.preventDefault();
+  //     console.log(event);
+  //   });
+  // //
+  // });
+  
   
 };
 
@@ -14,7 +21,7 @@ app.send = function(message) {
   // This is the url you should use to communicate with the parse API server.
     url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
     type: 'POST',
-    data: message,
+    data: JSON.stringify(message),
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message sent');
@@ -27,20 +34,21 @@ app.send = function(message) {
 };
 
 app.fetch = function() {
+  var self = this;
   $.ajax({
     url: 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages',
     type: 'GET',
     success: function (data) {
-      //app.processMessages(data);
-      console.log(data);
+      self.processMessages(data);
       console.log('chatterbox: Message received');
     }
   });
 };
 
 app.processMessages = function(messages) {
+  var self = this;
   messages.results.forEach(function(message) {
-    this.renderMessage(message);
+    self.renderMessage(message);
   });
 };
 
@@ -50,6 +58,7 @@ app.clearMessages = function() {
 
 app.renderMessage = function(message) {
   var $message = $('<div></div>');
+  //var $username = $('<a >')
   $message.html(`${message.username}: ${message.text}`);
   $('#chats').append($message);
 };
@@ -58,4 +67,9 @@ app.renderRoom = function(room) {
   var $room = $('<div></div>');
   $room.html(room);
   $('#roomSelect').append($room);
+};
+
+app.handleUsernameClick = (event) => {
+  var $username = ('<div class="username"></div>');
+
 };
