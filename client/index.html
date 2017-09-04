@@ -19,27 +19,23 @@
         window.location.search = newSearch;
       }
     </script>
-    <!-- your scripts -->
     <script src="env/config.js"></script>
-    <script src="scripts/app.js"></script>
   </head>
   <body>
     <div id="main">
-      <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
+      <h1>Chatterbox</h1>
       <div class="dropdown">
-        <button onclick="app.dropdown()" class="dropbtn">Lobby</button>
-        <div id="myDropdown" class="dropdown-content">
-          
-          <ul><a href="#">Lobby</a></ul>
-        </div>
+        <select id="roomSelect"> 
+        </select>
       </div> 
-      <form id="chatbox">
-        <input type="text" id="chat_input" name="chatmessage"><br>
+      <form id="#send">
+        <input type="text" id="chat_input" name="chatmessage">
         <input type="submit" value="Submit">
       </form>
     </div>
-    <div id="roomSelect"></div>
-    <div id="chats"></div>
+    <div id="currentRoom"></div>
+    <div id="chats">
+    </div>
+    <script src="scripts/app.js"></script>
   </body>
 </html>

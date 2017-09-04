@@ -6,11 +6,11 @@ body {
 }
 
 #main, #chats {
-    width: 500px;
+    width: 800px;
     margin: auto;
     text-align: left;
     background: white;
-    padding: 50px 60px;
+    padding: 25px 25px;
     border: solid #ddd;
     border-width: 0 1px 1px 1px;
 }
@@ -20,6 +20,7 @@ body {
     font-size: 35px;
     margin-bottom: 5px;
     padding: 5px;
+    text-align: center;
 }
 
 #main h1 span {
@@ -88,7 +89,35 @@ form input[type=text] {
     background-color: #0090da;
 }
 
-ul {
-    line-height: 5px;
+.chat_message {
+    border-radius: 3px;
+    background-color: rgb(230, 230, 230);
+    margin: 3px 0px 3px 0px;
+    padding: 2px;
+    color: rgb(64, 64, 64);
 }
+
+#currentRoom {
+    width: 851px;
+    height: 50px;
+    margin: auto;
+    font-size: 36px;
+    text-align: center;
+    background-color: white;
+    margin-top: 5px;
+    border-top: solid #ddd;
+    border-left: solid #ddd;
+    border-right: solid #ddd;
+    border-width: 0 1px 1px 1px;
+}
+
+.username {
+    color: rgb(64, 64, 64);
+}
+
+.username:hover {
+    color: rgb(0, 0, 0);
+
+}
+
 

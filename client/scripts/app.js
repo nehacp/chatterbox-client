@@ -1,44 +1,35 @@
 
+// should auto fetch messages if any new
 
-var app = {};
+
+const app = {};
 
 app.server = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
+app.defaultRequest = {"order": "-createdAt", "limit" : 500};
+app.friends = new Set();
 
-
-app.init = function() {
+//onload function
+app.init = () => {
   
-  app.fetch();
-
-
-  $('.dropdown-content').on('click', (event) => {
-    app.fetch(event.target.innerText);
-  });
-
-
-  
-  $(document).on('click', '.room', function (event) {
-    app.fetch(event.target.innerText);
-  });
-
-
-    
-  $(document).submit(app.renderChatMessage);
-
-  
+  app.fetch(app.defaultRequest);
+  $('#send').submit(app.handleSubmit);
+  $('#roomSelect').on('change', app.selectRoom);
+  $(document).on('click', '.username', app.handleUsernameClick);
   app.updateChat();
 };
 
-app.send = function(message) {
+app.send = (message, callback, room) => {
   $.ajax({
     url: app.server,
     type: 'POST',
     data: JSON.stringify(message),
     contentType: 'application/json',
-    success: function (data) {
-      console.log('send return', data);
-      console.log('chatterbox: Message sent');
+    success: (data) => {
+      $('#chat_input').val('');
+      callback(app.defaultRequest, room);
+
     },
-    error: function (data) {
+    error: (data) => {
       
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to send message', data);
@@ -46,96 +37,127 @@ app.send = function(message) {
   });
 };
 
-app.fetch = function(roomName = 'lobby') {
-//"2017-09-01T00:00:00.000Z"
+app.fetch = (data, roomName = 'lobby') => {
   $.ajax({
     url: app.server,
-    data: {"order": "-createdAt", "limit" : 500},
+    data: data,
     type: 'GET',
-    success: function (data) {
+    success: (data) => {
       app.mostRecent = data.results[0];
-      app.switchRooms(roomName);
       app.processMessages(data, roomName);
     }
   });
 };
 
-app.processMessages = function(messages, room) {
-  var rooms = {};
-  $('#chats').html('');
-  messages.results.forEach(function(message) {
-    var currentRoomName = message.roomname;
-    if (!rooms[currentRoomName]) {
+app.processMessages = (messages, room) => {
+  let rooms = {};
+  app.clearMessages();
+  app.switchRooms(room);
+  app.renderRoom('create new room');
+  messages.results.forEach((message) => {
+    let currentRoomName = message.roomname;
+    if (!rooms[currentRoomName] && currentRoomName !== null & currentRoomName !== '') {
       rooms[currentRoomName] = true;
       app.renderRoom(currentRoomName);
     }
     if (currentRoomName === room) {
-      app.renderMessage(message);
+      if (message.text !== '') {
+        app.renderMessage(message);
+      }
     }
   });
+  $('#roomSelect').val(room);
 };
 
-app.clearMessages = function() {
+//clear messages from chat
+app.clearMessages = () => {
   $('#chats').html('');
 };
 
-app.renderMessage = function(message) {
-  var $message = $('<div></div>');
-  $message.text(`${message.username}: ${message.text}`).html();
-  $('#chats').append($message);
+//render messages to add to chat
+app.renderMessage = (message) => {
+  let $chatMessage = $('<div class="chat_message"></div>');
+  let  $message = $('<span></span>');
+  let $username = $('<a href="#" class="username"></a>');
+  $username.text(message.username).html();
+  $message.text(`: ${message.text}`).html();
+  $chatMessage.append($username);
+  $chatMessage.append($message);
+  $('#chats').append($chatMessage);
 };
 
-app.switchRooms = function(room) { 
-  //room = room[0].toUpperCase() + room.slice(1);
-  $('#roomSelect').html(room);
-};
-
+//add rooms to dropdown menu
 app.renderRoom = (room) => {
-  var $room = $('<ul class="room"></ul>');
-  var $link = $('<a href="#"></a>');
-  $link.text(room);
-  $room.append($link);
-  $('.dropdown-content').append($room);
+  let $room = $('<option class="room"></option>');
+  $room.text(room).html();
+  $room.val(room).html();
+  $('#roomSelect').append($room);
 };
 
+//switch rooms when selected in dropdown
+app.switchRooms = (room) => { 
+  $('#currentRoom').text(room).html();
+};
+
+//on selection of room from dropdown.
+app.selectRoom = (event) => {
+  event.preventDefault();
+  let room = event.target.value;
+  if (room === 'create new room') {
+   app.addRoom(room);
+  }
+  app.fetch(app.defaultRequest, room);
+};
+
+//add room to DOM
+app.addRoom = (room) => {
+  let answer = prompt('What would you like to call it?');
+  let data = {
+    text: '',
+    username: app.username,
+    roomname: answer
+  };
+  app.send(data, app.fetch, answer);
+
+};
+
+//add friend to friendlist on click of friend
 app.handleUsernameClick = (event) => {
-  var $username = ('<div class="username"></div>');
+  let friend = event.target.innerText;
+  app.friends.add(friend);
 
 };
 
-app.dropdown = () => {
-  var $allRooms = $('#myDropdown');
-  $allRooms.hide();
-};
-
-app.renderChatMessage = (event) => {
+//write messages to chat and send to server
+app.handleSubmit = (event) => {
   event.preventDefault();
   
-  var $message = $('#chat_input').val(); 
-  var $room = $('#roomSelect').text();
+  let $message = $('#chat_input').val(); 
+  let $room = $('#currentRoom').text();
   
-  var data = {
+  let data = {
     text: $message,
     username: app.username,
     roomname: $room
   };
-
-  app.send(data);
+  //change callback;
+  app.send(data, app.fetch, $room);
 };
 
+//get current username
 app.getUsername = () => {
-  var username = window.location.href.match(/username=(.+)$/);
+  let username = window.location.href.match(/username=(.+)$/);
   username = username[1];
   return username;
 };
 
+
 app.updateChat = () => {
- // setInterval(app.fetch($('#roomSelect').text()), 1000);  
+ app.interval = setInterval(() => {
+  app.fetch(app.defaultRequest, $('#roomSelect').text())}, 3000);  
 };
 
 app.username = app.getUsername();
-
-
 
 
 app.init();
