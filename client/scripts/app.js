@@ -11,6 +11,7 @@ app.server = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
 app.defaultRequest = {"order": "-createdAt", "limit" : 500};
 app.friends = new Set();
 app.rooms = {};
+app.currentRoom = '';
 
 //onload function
 app.init = () => {
@@ -110,7 +111,9 @@ app.renderRoom = (room) => {
 
 //switch rooms when selected in dropdown
 app.switchRoomName = (room) => { 
+  app.rooms[currentRoom] = true;
   $('#currentRoom').text(room).html();
+  app.currentRoom = room;
 };
 
 //on selection of room from dropdown.
@@ -118,7 +121,7 @@ app.selectRoom = (event) => {
   event.preventDefault();
   let room = event.target.value;
   if (room === 'create new room') {
-   app.addRoom(room);
+    app.addRoom(room);
   }
   app.fetch(app.defaultRequest, room);
 };
