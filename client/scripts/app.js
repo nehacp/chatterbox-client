@@ -1,5 +1,8 @@
 
 // should auto fetch messages if any new
+// create tab for different chat room
+// show unread messages in tab for tabbed chatroom
+// maybe make a delete request
 
 
 const app = {};
@@ -7,14 +10,19 @@ const app = {};
 app.server = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
 app.defaultRequest = {"order": "-createdAt", "limit" : 500};
 app.friends = new Set();
+app.rooms = {};
 
 //onload function
 app.init = () => {
   
   app.fetch(app.defaultRequest);
+
   $('#send').submit(app.handleSubmit);
+
   $('#roomSelect').on('change', app.selectRoom);
+
   $(document).on('click', '.username', app.handleUsernameClick);
+
   app.updateChat();
 };
 
@@ -43,25 +51,31 @@ app.fetch = (data, roomName = 'lobby') => {
     data: data,
     type: 'GET',
     success: (data) => {
-      app.mostRecent = data.results[0];
       app.processMessages(data, roomName);
+    },
+    error: (data) => {
+      console.error('failed to complete request');
     }
   });
 };
 
 app.processMessages = (messages, room) => {
-  let rooms = {};
+  let latestStamp = false;
   app.clearMessages();
-  app.switchRooms(room);
+  app.switchRoomName(room);
   app.renderRoom('create new room');
   messages.results.forEach((message) => {
     let currentRoomName = message.roomname;
-    if (!rooms[currentRoomName] && currentRoomName !== null & currentRoomName !== '') {
-      rooms[currentRoomName] = true;
+    if (!app.rooms[currentRoomName] && currentRoomName !== null & currentRoomName !== '') {
+      app.rooms[currentRoomName] = true;
       app.renderRoom(currentRoomName);
     }
     if (currentRoomName === room) {
-      if (message.text !== '') {
+      if (!latestStamp){
+        app.rooms[currentRoomName] = message.createdAt;
+        latestStamp = true;
+      }
+      if (message.text !== '' && message.text !== null) {
         app.renderMessage(message);
       }
     }
@@ -95,7 +109,7 @@ app.renderRoom = (room) => {
 };
 
 //switch rooms when selected in dropdown
-app.switchRooms = (room) => { 
+app.switchRoomName = (room) => { 
   $('#currentRoom').text(room).html();
 };
 
@@ -120,7 +134,6 @@ app.addRoom = (room) => {
   app.send(data, app.fetch, answer);
 
 };
-
 //add friend to friendlist on click of friend
 app.handleUsernameClick = (event) => {
   let friend = event.target.innerText;
@@ -153,8 +166,8 @@ app.getUsername = () => {
 
 
 app.updateChat = () => {
- app.interval = setInterval(() => {
-  app.fetch(app.defaultRequest, $('#roomSelect').text())}, 3000);  
+ //app.interval = setInterval(() => {
+  //app.fetch(app.defaultRequest, $('#roomSelect').text())}, 3000);  
 };
 
 app.username = app.getUsername();
