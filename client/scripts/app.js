@@ -5,7 +5,7 @@
 // maybe make a delete request
 
 
-const app = {};
+let app = {};
 
 app.server = 'http://parse.sfm8.hackreactor.com/chatterbox/classes/messages';
 app.defaultRequest = {"order": "-createdAt", "limit" : 500};
@@ -18,13 +18,13 @@ app.init = () => {
   
   app.fetch(app.defaultRequest);
 
-  $('#send').submit(app.handleSubmit);
-
   $('#roomSelect').on('change', app.selectRoom);
 
   $(document).on('click', '.username', app.handleUsernameClick);
 
-  app.updateChat();
+ // app.updateChat();
+
+  $('#send').submit(app.handleSubmit);
 };
 
 app.send = (message, callback, room) => {
@@ -141,7 +141,6 @@ app.addRoom = (room) => {
 app.handleUsernameClick = (event) => {
   let friend = event.target.innerText;
   app.friends.add(friend);
-
 };
 
 //write messages to chat and send to server
